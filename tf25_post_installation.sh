@@ -53,6 +53,9 @@ cd build
 # OPENCV_EXTRA_MODULES_PATH
 
 # cmake options
+# - note:
+#       home = ~ does not work correctly
+#       use /home/jay
 cmake -D CMAKE_BUILD_TYPE=RELEASE \
 -D CMAKE_INSTALL_PREFIX=/usr/local \
 -D WITH_TBB=ON \
@@ -71,9 +74,29 @@ cmake -D CMAKE_BUILD_TYPE=RELEASE \
 -D OPENCV_GENERATE_PKGCONFIG=ON \
 -D OPENCV_PC_FILE_NAME=opencv.pc \
 -D OPENCV_ENABLE_NONFREE=ON \
--D OPENCV_PYTHON3_INSTALL_PATH=~/anaconda3/envs/tf25_38_cv/lib/python3.8/site-packages/ \
--D PYTHON_EXECUTABLE=~/anaconda3/envs/tf25_38_cv/bin/python \
+-D OPENCV_PYTHON3_INSTALL_PATH=/home/jay/anaconda3/envs/tf25_38_cv/lib/python3.8/site-packages \
+-D PYTHON_EXECUTABLE=/home/jay/anaconda3/envs/tf25_38_cv/bin/python \
 -D OPENCV_EXTRA_MODULES_PATH=/project/opencv_contrib/modules \
 -D INSTALL_PYTHON_EXAMPLES=OFF \
 -D INSTALL_C_EXAMPLES=OFF \
 -D BUILD_EXAMPLES=OFF ..
+
+echo "*** finished the cmake config"
+
+# making on AMD 5950X, 32GBls
+# - takes about 10 min
+make -j32
+sudo make install
+echo "*** finished the make & install"
+
+# Include the libs in your environment
+sudo /bin/bash -c 'echo "/usr/local/lib" >> /etc/ld.so.conf.d/opencv.conf'
+sudo ldconfig
+
+# skipping the C++ tests
+# make the python wheel
+cd python_loader
+sudo python setup.py bdist_wheel
+ls /project/opencv/build/python_loader/dist
+echo "*** you know have an opencv 4.5.4 wheel file"
+
